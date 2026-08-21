@@ -1,0 +1,27 @@
+# Sift eats its own dog food: this repo gates its own agent configuration.
+name: context-budget
+on:
+  pull_request:
+    paths:
+      - "CLAUDE.md"
+      - "AGENTS.md"
+      - ".claude/**"
+      - ".mcp.json"
+      - "sift.budget.json"
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  budget:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: Measure always-on context
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./sift comment . --base "${{ github.event.pull_request.base.sha }}" | tee /tmp/c.md >> "$GITHUB_STEP_SUMMARY"
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/c.md --edit-last \
+            || gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/c.md
+          ./sift check . --base "${{ github.event.pull_request.base.sha }}"

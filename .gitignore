@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+reports/*.html
+data/corpus.jsonl
+data/install_cost.json
+.DS_Store

@@ -1,0 +1,32 @@
+name: "Sift — context budget"
+description: "Fail the build when a pull request inflates the always-on context every agent session pays for."
+branding: { icon: "filter", color: "orange" }
+inputs:
+  path:
+    description: "Directory to measure"
+    default: "."
+  base:
+    description: "Git ref to diff against"
+    default: ${{ github.event.pull_request.base.sha }}
+  comment:
+    description: "Post the result as a PR comment"
+    default: "true"
+  fail-on:
+    description: "fail | warn | never — the status that fails the build"
+    default: "fail"
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+        python3 "${{ github.action_path }}/../sift" comment "${{ inputs.path }}" \
+          --base "${{ inputs.base }}" > /tmp/sift-comment.md
+        cat /tmp/sift-comment.md >> "$GITHUB_STEP_SUMMARY"
+        if [ "${{ inputs.comment }}" = "true" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/sift-comment.md --edit-last || \
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/sift-comment.md
+        fi
+        if [ "${{ inputs.fail-on }}" != "never" ]; then
+          python3 "${{ github.action_path }}/../sift" check "${{ inputs.path }}" --base "${{ inputs.base }}"
+        fi

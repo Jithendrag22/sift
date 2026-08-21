@@ -1,0 +1,7 @@
+{
+  "always_on_tokens": 1000,
+  "warn_ratio": 0.8,
+  "max_increase_tokens": 500,
+  "median_turns_per_session": 45,
+  "sessions_per_week": 40
+}
