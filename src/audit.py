@@ -100,6 +100,12 @@ def split_frontmatter(text: str) -> tuple[dict, str, bool]:
             if block:
                 buf.append("")
             continue
+        # A whole-line YAML comment is not part of any value. Without this it is
+        # appended to the preceding key and inflates that artifact's always-on
+        # character count. Inline `#` is deliberately left alone: it is legitimate
+        # content in descriptions ("C#", "issue #12").
+        if not block and line.lstrip().startswith("#"):
+            continue
         # a new top-level key starts at column 0 and looks like `word:`
         km = re.match(r"^([A-Za-z_][\w-]*)\s*:\s*(.*)$", line)
         if km and not line.startswith((" ", "\t")):
