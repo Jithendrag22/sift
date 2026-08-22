@@ -96,6 +96,10 @@ jobs:
 
 Exposes `status`, `always-on-tokens` and `delta` as outputs for downstream steps.
 
+**See it working:** [PR #1](https://github.com/Jithendrag22/sift/pull/1) is a deliberately
+over-budget pull request, left open as a live demo. Red check, and a comment naming
+`CLAUDE.md` as the cause.
+
 ### `sift.budget.json`
 
 ```json

@@ -1,0 +1,54 @@
+# Proves the three fail-on modes actually behave differently on a real runner.
+#
+# They never had. `fail-on: never` and `warn` were written, reviewed, and shipped
+# without once executing — and the default path was broken in three ways until a
+# real runner showed it. Untested branches in a gate are worse than absent ones,
+# because a gate is trusted.
+#
+# Runs against whatever ref triggered it. On an over-budget branch the expected
+# outcomes are: never -> success, warn -> failure, fail -> failure.
+name: fail-on-matrix
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - mode: never
+            expect: success
+          - mode: warn
+            expect: failure
+          - mode: fail
+            expect: failure
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      - name: Run the gate with fail-on=${{ matrix.mode }}
+        id: gate
+        continue-on-error: true
+        uses: ./
+        with:
+          base: ${{ github.event.pull_request.base.sha || github.event.repository.default_branch }}
+          fail-on: ${{ matrix.mode }}
+          comment: "false"
+
+      - name: Assert the outcome matches what fail-on promises
+        shell: bash
+        run: |
+          actual="${{ steps.gate.outcome }}"
+          expect="${{ matrix.expect }}"
+          echo "fail-on=${{ matrix.mode }}  status=${{ steps.gate.outputs.status }}  outcome=$actual  expected=$expect"
+          if [ "$actual" != "$expect" ]; then
+            echo "::error title=fail-on '${{ matrix.mode }}' misbehaved::expected the step to $expect, it was $actual"
+            exit 1
+          fi
+          echo "fail-on '${{ matrix.mode }}' behaved as documented."
