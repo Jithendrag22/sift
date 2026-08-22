@@ -141,6 +141,19 @@ ever fired: 1     never fired: 29
 **Those last two lines are the point.** Assistant records carry an `attributionSkill`
 field, so whether a skill has *ever* fired is a count, not an argument.
 
+That said — this is currently **n=1 machine**, and until it generalises it is an anecdote
+with a number attached. If you want to help test it:
+
+```bash
+./sift calibrate --share          # counts and distributions only, no names, no paths
+./sift calibrate --share --names  # include skill names, deliberately
+```
+
+It prints a blob to your terminal. Read it, then paste it into
+[Discussions](https://github.com/Jithendrag22/sift/discussions) if you are willing.
+Nothing is sent anywhere — Sift still makes no network calls. Consent that requires an
+action is the only kind worth having.
+
 <details>
 <summary><strong>Why caching makes this worse, not better</strong></summary>
 

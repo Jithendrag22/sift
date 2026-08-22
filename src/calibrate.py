@@ -165,6 +165,64 @@ def collect(root: str | Path = "~/.claude/projects") -> dict:
     }
 
 
+# --------------------------------------------------------------------------
+# shareable summary
+# --------------------------------------------------------------------------
+#
+# The single weakest claim this project makes is "1 of 30 skills has ever fired".
+# It is true, and it is n=1 machine. Until that generalises it is an anecdote
+# with a number attached.
+#
+# The obvious fix is telemetry. We are not doing that. The README promises no
+# network calls and no telemetry, and a promise you revise the moment it becomes
+# inconvenient was never a promise. So instead: emit a blob the operator can read
+# in full, judge for themselves, and paste somewhere if they choose. Consent that
+# requires an action is the only kind worth having.
+#
+# Skill *names* are excluded by default. Public skill names are harmless, but an
+# internal one can leak a product, a client or an unannounced project, and we
+# cannot tell which is which from here. `--names` includes them deliberately.
+
+SHARE_NOTE = (
+    "Paste this into https://github.com/Jithendrag22/sift/discussions to help test whether "
+    "the fire-rate finding generalises. Read it first — it is yours."
+)
+
+
+def share_blob(d: dict, include_names: bool = False) -> dict:
+    """A summary safe to publish: counts and distributions, no paths, no content."""
+    s = d.get("skills", {}) or {}
+    t = d.get("turns_per_session", {}) or {}
+    c = d.get("observed_cold_prefix_tokens", {}) or {}
+    m = d.get("input_token_mix", {}) or {}
+    out = {
+        "schema": "sift.share/1",
+        "sessions": d.get("sessions"),
+        "calls": d.get("calls"),
+        "turns_median": t.get("median"),
+        "turns_mean": t.get("mean"),
+        "turns_max": t.get("max"),
+        "cold_prefix_median": c.get("median"),
+        "cold_prefix_min": c.get("min"),
+        "cold_prefix_max": c.get("max"),
+        "cache_read_pct": m.get("cache_read_pct"),
+        "cache_creation_pct": m.get("cache_creation_pct"),
+        "uncached_pct": m.get("uncached_pct"),
+        "total_input_tokens": m.get("total_input_tokens"),
+        "cache_multiplier": d.get("cache_multiplier_for_your_median_session"),
+        "skills_listed": s.get("listed"),
+        "skills_ever_fired": s.get("ever_fired"),
+        "skills_never_fired": s.get("never_fired"),
+        # a distribution, not a list — how concentrated is usage across the ones that fire
+        "fire_counts": sorted((n for _, n in (s.get("top_fired") or [])), reverse=True),
+        "claude_code_versions": [v for v, _ in (d.get("claude_code_versions") or [])],
+    }
+    if include_names:
+        out["fired_names"] = [n for n, _ in (s.get("top_fired") or [])]
+        out["never_fired_names"] = s.get("never_fired_names") or []
+    return out
+
+
 def render_text(d: dict) -> str:
     if "error" in d:
         return d["error"]
@@ -213,7 +271,10 @@ def render_text(d: dict) -> str:
 def main(argv: list[str]) -> int:
     root = argv[1] if len(argv) > 1 else "~/.claude/projects"
     d = collect(root)
-    if "--json" in argv:
+    if "--share" in argv:
+        print(json.dumps(share_blob(d, include_names="--names" in argv), indent=1))
+        print("\n" + SHARE_NOTE)
+    elif "--json" in argv:
         print(json.dumps(d, indent=1))
     else:
         print(render_text(d))

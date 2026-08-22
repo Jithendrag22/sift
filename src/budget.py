@@ -419,6 +419,8 @@ USAGE = """sift — a context budget for CI
   sift init    [path]              write a sift.budget.json seeded from current size
   sift calibrate [logs]            measure the real prefix, your cache multiplier and
                                    which skills have ever actually fired, from session logs
+                                   --share  print a publishable summary (no names, no paths)
+                                   --names  include skill names in --share, deliberately
 """
 
 
@@ -442,7 +444,13 @@ def main(argv: list[str]) -> int:
     if cmd == "calibrate":
         import calibrate as _cal
         d = _cal.collect(rest[0] if rest else "~/.claude/projects")
-        print(json.dumps(d, indent=1) if "--json" in flags else _cal.render_text(d))
+        if "--share" in flags:
+            print(json.dumps(_cal.share_blob(d, include_names="--names" in flags), indent=1))
+            print("\n" + _cal.SHARE_NOTE)
+        elif "--json" in flags:
+            print(json.dumps(d, indent=1))
+        else:
+            print(_cal.render_text(d))
         return 0
 
     if cmd == "measure":
