@@ -427,12 +427,16 @@ def main(argv: list[str]) -> int:
         i = rest.index("--base")
         base_ref = rest[i + 1] if i + 1 < len(rest) else None
         rest = rest[:i] + rest[i + 2:]
+    # Flags are not paths. Without this, `sift calibrate --json` treated "--json"
+    # as the log directory and reported "no session directory at --json".
+    flags = [a for a in rest if a.startswith("-")]
+    rest = [a for a in rest if not a.startswith("-")]
     root = Path(rest[0]).expanduser() if rest else Path.cwd()
 
     if cmd == "calibrate":
         import calibrate as _cal
         d = _cal.collect(rest[0] if rest else "~/.claude/projects")
-        print(json.dumps(d, indent=1) if "--json" in argv else _cal.render_text(d))
+        print(json.dumps(d, indent=1) if "--json" in flags else _cal.render_text(d))
         return 0
 
     if cmd == "measure":

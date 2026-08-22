@@ -1,5 +1,5 @@
 SIFT CORPUS STATS  n=10198 SKILL.md files   vault=/Users/jithendrabethi/Desktop/my_projects/claude code repos
-tokenizer: NONE -- all token figures are ESTIMATES at 4.0 chars/token
+tokenizer: NONE -- all token figures are ESTIMATES at 3.6 chars/token
 
 == Q1 frontmatter validity ==
 valid (name+description present, YAML parses): 10168 (99.7%)
@@ -17,17 +17,17 @@ malformed: 30 (0.3%)
 == Q2 token cost (ESTIMATE, chars/4) ==
 (a) description only -- the always-loaded cost
   chars  median 149  p90 283  p99 583  max 1112  mean 168.7
-  ~tok   median 37  p90 71  p99 146  max 278
-  total if ALL 10168 descriptions loaded: ~428,787 tokens
+  ~tok   median 41  p90 79  p99 162  max 309
+  total if ALL 10168 descriptions loaded: ~476,430 tokens
 (b) full body -- loads on trigger
   chars  median 6108  p90 15581  p99 37831  max 226534  mean 8096.1
-  ~tok   median 1527  p90 3895  p99 9458  max 56634
-  total corpus body: ~20,641,030 tokens
-  heaviest: ~ 56,634 tok  skills/last30days-skill/skills/last30days/SKILL.md
-  heaviest: ~ 27,721 tok  harnesses/gstack/review/SKILL.md
-  heaviest: ~ 27,618 tok  harnesses/gstack/design-review/SKILL.md
-  heaviest: ~ 27,278 tok  harnesses/gstack/land-and-deploy/SKILL.md
-  heaviest: ~ 25,715 tok  trading/Vibe-Trading/agent/src/skills/tushare/SKILL.md
+  ~tok   median 1697  p90 4328  p99 10509  max 62926
+  total corpus body: ~22,934,478 tokens
+  heaviest: ~ 62,926 tok  skills/last30days-skill/skills/last30days/SKILL.md
+  heaviest: ~ 30,801 tok  harnesses/gstack/review/SKILL.md
+  heaviest: ~ 30,686 tok  harnesses/gstack/design-review/SKILL.md
+  heaviest: ~ 30,309 tok  harnesses/gstack/land-and-deploy/SKILL.md
+  heaviest: ~ 28,572 tok  trading/Vibe-Trading/agent/src/skills/tushare/SKILL.md
 
 == Q3 duplication ==
 exact normalised-text duplicates: 7019 files in 2271 groups (4748 redundant copies, 46.6% of corpus)

@@ -40,7 +40,7 @@ corpus.jsonl SCHEMA (one JSON object per line, UTF-8, newline delimited)
 
 import hashlib
 import json
-import os
+import os, sys
 import re
 import statistics
 import sys
@@ -56,7 +56,11 @@ OUT_DIR = "/Users/jithendrabethi/Desktop/my_projects/Temporary/sift/data"
 OUT_JSONL = os.path.join(OUT_DIR, "corpus.jsonl")
 OUT_REPORT = os.path.join(OUT_DIR, "corpus_report.txt")
 
-CPT = 4.0  # chars per token -- ESTIMATE
+# Single source of truth for the estimate. Previously this module used 4.0 while
+# audit.py used 3.6, which put corpus figures and tool figures ~11% apart by
+# construction — two numbers in the same product that could never agree.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from audit import CHARS_PER_TOKEN as CPT
 
 # ---------------------------------------------------------------- frontmatter
 
