@@ -39,8 +39,8 @@ The distinction the tool is built on, and the one nobody makes:
 
 | | what it is | when you pay |
 |---|---|---|
-| **Always-on** | `CLAUDE.md` in full; the `description` line of *every* installed skill; every subagent description; every MCP tool schema | Every session, before you type a word |
-| **On-demand** | The *body* of a skill or command | Only when it fires |
+| **Always-on** | `CLAUDE.md` in full; the `description` line of *every* installed skill; every subagent description | Every session, before you type a word |
+| **On-demand** | The *body* of a skill or command; MCP tool schemas, which Tool Search defers until a tool is selected | Only when it fires |
 
 A skill with a 3,000-word body and a tight 20-word description is nearly free until you
 need it. A skill with a rambling 200-word description charges rent in every session

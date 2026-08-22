@@ -9,8 +9,13 @@ different kinds of cost, and almost nobody separates them:
   ALWAYS-ON   Loaded into every single session before you type a word.
               Your CLAUDE.md. The *description* line of every installed skill
               (the model must see all of them to know which to trigger). Every
-              subagent description. Every MCP tool schema. This is a standing
-              tax on every request you ever make.
+              subagent description. This is a standing tax on every request
+              you ever make.
+
+              NOT MCP tool schemas. An earlier version of this file said it was.
+              That was wrong: Claude Code ships Tool Search, so sessions carry a
+              `deferred_tools_delta` listing tool *names* only and schemas load
+              on selection. Verified against real session logs, 2026-08-22.
 
   ON-DEMAND   Loaded only when something fires. The *body* of a skill. The body
               of a slash command. Cost you pay occasionally and deliberately.
@@ -323,11 +328,15 @@ def scan_commands(root: Path) -> list[Artifact]:
 def scan_settings(root: Path) -> list[Artifact]:
     """Hooks and MCP servers declared in settings.json.
 
-    MCP tool schemas are the single most under-measured always-on cost in a
-    modern setup: every tool a server exposes ships its full JSON schema into
-    the system prompt. We can only see the *declaration* here, not the live
-    schema, so we report the server and flag it as unmeasured rather than
-    guessing a number.
+    CORRECTED 2026-08-22. This docstring previously claimed MCP tool schemas
+    were the largest under-measured always-on cost. They are not always-on at
+    all by default — Claude Code defers them behind Tool Search and lists only
+    tool names at session start. Anthropic solved that problem in the product.
+
+    We still surface the server, because the name listing is a real if small
+    cost and because a reader deserves to know the server is there. We do not
+    invent a number for it. Over-reporting would be the same failure we exist
+    to correct.
     """
     out: list[Artifact] = []
     for fn in ("settings.json", "settings.local.json"):
@@ -358,7 +367,8 @@ def scan_settings(root: Path) -> list[Artifact]:
                     kind="mcp-server",
                     name=server,
                     path=str(p),
-                    issues=["MCP tool schemas are always-on and not measurable statically — run `sift probe` to capture them"],
+                    issues=["tools are name-listed via Tool Search; full schemas load on selection, "
+                            "not at session start — not counted above"],
                 )
             )
     return out
