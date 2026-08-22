@@ -17,11 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - name: Measure always-on context
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          ./sift comment . --base "${{ github.event.pull_request.base.sha }}" | tee /tmp/c.md >> "$GITHUB_STEP_SUMMARY"
-          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/c.md --edit-last \
-            || gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/c.md
-          ./sift check . --base "${{ github.event.pull_request.base.sha }}"
+      # Sift gates its own agent configuration with its own action.
+      - uses: ./
+        with:
+          base: ${{ github.event.pull_request.base.sha }}

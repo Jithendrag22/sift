@@ -102,7 +102,7 @@ GitHub Action:
 ```yaml
 - uses: actions/checkout@v4
   with: { fetch-depth: 0 }
-- uses: your-org/sift/action@v1
+- uses: your-org/sift@v1
   with:
     base: ${{ github.event.pull_request.base.sha }}
 ```
@@ -151,11 +151,15 @@ src/report.py         self-contained HTML report, zero network
 src/calibrate.py      observed prefix, cache multiplier and skill fire rates from logs
 src/corpus_stats.py   corpus miner (10,198 SKILL.md files)
 src/install_cost.py   what installing a whole collection costs, per session, forever
-action/action.yml     composite GitHub Action
+action.yml            composite GitHub Action (root, so it is `owner/sift@v1`)
 data/corpus.jsonl     parsed corpus, 17 fields per skill
 ```
 
-Python 3.9+, standard library only for the gate. No install step.
+Standard library only for the gate. No install step, no dependencies.
+
+Verified locally on Python 3.11 and 3.13 (68 tests, all passing). The CI matrix also runs
+3.9, which is the intended floor — every module defers annotation evaluation, so it should
+hold, but it is CI that proves it rather than a claim in a README.
 
 ## Status
 

@@ -1,0 +1,128 @@
+# Root-level action definition, so the action is consumed as `owner/sift@v1`
+# rather than `owner/sift/action@v1`. The nested path was a mistake: it made
+# `github.action_path` point one directory below the CLI and only resolved by
+# a `..` that broke depending on how the action was referenced.
+name: "Sift — context budget"
+description: "Fail the build when a pull request inflates the always-on context that every agent session pays for."
+author: "Sift"
+branding:
+  icon: "filter"
+  color: "orange"
+
+inputs:
+  path:
+    description: "Directory to measure."
+    required: false
+    default: "."
+  base:
+    description: >
+      Git ref to diff against. Defaults to the pull request base SHA. Leave empty
+      to check only the absolute ceiling with no diff.
+    required: false
+    default: ${{ github.event.pull_request.base.sha }}
+  comment:
+    description: "Post the result as a pull-request comment. Needs GITHUB_TOKEN and pull-requests: write."
+    required: false
+    default: "true"
+  fail-on:
+    description: "Which status fails the build: fail | warn | never."
+    required: false
+    default: "fail"
+  github-token:
+    description: "Token used to post the comment. Defaults to the workflow token."
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  status:
+    description: "pass | warn | fail"
+    value: ${{ steps.sift.outputs.status }}
+  always-on-tokens:
+    description: "Measured always-on tokens for this ref."
+    value: ${{ steps.sift.outputs.always_on_tokens }}
+  delta:
+    description: "Change in always-on tokens versus base, empty when no base was used."
+    value: ${{ steps.sift.outputs.delta }}
+
+runs:
+  using: composite
+  steps:
+    # The single most common way this action fails in the wild:
+    # actions/checkout defaults to fetch-depth: 1, so the base SHA is simply not
+    # in the clone. Say so here, plainly, rather than letting the CLI's exit 2
+    # surface as an unexplained failure three lines later.
+    - name: Verify the base ref is reachable
+      if: inputs.base != ''
+      shell: bash
+      run: |
+        if ! git -C "${{ inputs.path }}" cat-file -e "${{ inputs.base }}^{commit}" 2>/dev/null; then
+          git -C "${{ inputs.path }}" fetch --depth=1 origin "${{ inputs.base }}" 2>/dev/null || true
+        fi
+        if ! git -C "${{ inputs.path }}" cat-file -e "${{ inputs.base }}^{commit}" 2>/dev/null; then
+          echo "::error title=Sift needs the base commit::The base ref ${{ inputs.base }} is not in this clone. Add 'with: {fetch-depth: 0}' to your actions/checkout step."
+          exit 1
+        fi
+
+    - name: Measure always-on context
+      id: sift
+      shell: bash
+      env:
+        SIFT: ${{ github.action_path }}/sift
+        BASE: ${{ inputs.base }}
+        TARGET: ${{ inputs.path }}
+      run: |
+        set -uo pipefail   # deliberately not -e: we need the CLI's exit code
+
+        args=("$TARGET")
+        [ -n "$BASE" ] && args+=(--base "$BASE")
+
+        python3 "$SIFT" comment "${args[@]}" > "$RUNNER_TEMP/sift.md"
+        rc=$?
+        if [ $rc -ne 0 ]; then
+          echo "::error title=Sift could not measure this ref::sift comment exited $rc"
+          cat "$RUNNER_TEMP/sift.md" || true
+          exit $rc
+        fi
+
+        cat "$RUNNER_TEMP/sift.md" >> "$GITHUB_STEP_SUMMARY"
+
+        # Machine-readable verdict for outputs and for the fail-on gate below.
+        python3 "$SIFT" measure "$TARGET" > "$RUNNER_TEMP/sift.json"
+        python3 - "$RUNNER_TEMP/sift.json" >> "$GITHUB_OUTPUT" <<'PY'
+        import json, os, sys
+        d = json.load(open(sys.argv[1]))
+        print(f"always_on_tokens={d['always_on_tokens']}")
+        PY
+
+        python3 "$SIFT" check "${args[@]}" > "$RUNNER_TEMP/verdict.txt" 2>&1
+        verdict_rc=$?
+        cat "$RUNNER_TEMP/verdict.txt"
+
+        if grep -q "fail:" "$RUNNER_TEMP/verdict.txt"; then status=fail
+        elif grep -q "warn:" "$RUNNER_TEMP/verdict.txt"; then status=warn
+        else status=pass; fi
+        echo "status=$status" >> "$GITHUB_OUTPUT"
+        echo "SIFT_STATUS=$status" >> "$GITHUB_ENV"
+        echo "SIFT_RC=$verdict_rc" >> "$GITHUB_ENV"
+
+    - name: Comment on the pull request
+      if: inputs.comment == 'true' && github.event_name == 'pull_request'
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR: ${{ github.event.pull_request.number }}
+      run: |
+        # --edit-last keeps one rolling comment instead of a new one per push.
+        # It fails when there is no previous comment, hence the fallback.
+        gh pr comment "$PR" --body-file "$RUNNER_TEMP/sift.md" --edit-last \
+          || gh pr comment "$PR" --body-file "$RUNNER_TEMP/sift.md" \
+          || echo "::warning title=Sift could not comment::Check that the workflow grants pull-requests: write."
+
+    - name: Apply the gate
+      shell: bash
+      run: |
+        case "${{ inputs.fail-on }}" in
+          never) echo "fail-on: never — reporting only." ;;
+          warn)  [ "$SIFT_STATUS" = "pass" ] || { echo "::error::Context budget status: $SIFT_STATUS"; exit 1; } ;;
+          *)     [ "$SIFT_STATUS" != "fail" ] || { echo "::error::Context budget exceeded."; exit 1; } ;;
+        esac
