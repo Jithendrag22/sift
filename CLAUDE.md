@@ -1,0 +1,52 @@
+# Contributing conventions for Sift
+
+- Standard library only. Any dependency needs a paragraph justifying it in the PR.
+- Every number the tool prints must be computed and reproducible.
+- Tests use `unittest`. Run `python3 -m unittest discover tests` before pushing.
+
+## House style
+- Rule 1: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 2: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 3: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 4: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 5: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 6: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 7: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 8: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 9: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 10: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 11: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 12: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 13: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 14: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 15: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 16: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 17: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 18: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 19: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 20: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 21: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 22: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 23: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 24: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 25: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 26: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 27: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 28: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 29: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 30: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 31: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 32: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 33: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 34: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 35: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 36: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 37: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 38: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 39: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 40: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 41: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 42: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 43: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 44: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
+- Rule 45: prefer the explicit form over the implicit one, and leave a short comment near the change explaining why the trade-off went that way.
