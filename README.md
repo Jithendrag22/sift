@@ -47,7 +47,7 @@ And the cost is not only money:
 
 | source | finding |
 |---|---|
-| Anthropic, Tool Search Tool | Cutting always-loaded tool definitions from ~77K to ~8.7K tokens raised MCP accuracy **49% → 74%** (Opus 4) and **79.5% → 88.1%** (Opus 4.5) |
+| [Anthropic, Tool Search Tool](https://www.anthropic.com/engineering/advanced-tool-use) | Cutting always-loaded tool definitions from ~77K to ~8.7K tokens raised MCP accuracy **49% → 74%** (Opus 4) and **79.5% → 88.1%** (Opus 4.5) |
 | [arXiv:2510.05381](https://arxiv.org/abs/2510.05381) | 13.9–85% degradation from context length **even when irrelevant tokens are masked out** |
 | Shi et al., ICML 2023 | Irrelevant context harms *separately* from length |
 | Boris Cherny, Anthropic | "Every 6 months delete your CLAUDE.md. Delete your skills. Delete your hooks. See what the model does." |
@@ -148,7 +148,8 @@ field, so whether a skill has *ever* fired is a count, not an argument.
 
 The intuitive objection is that prompt caching makes the standing prefix nearly free. The
 arithmetic says the opposite. The prefix is cache-written once at **2×** base input price
-(1-hour TTL) and re-read at **0.1×** on every subsequent call:
+(1-hour TTL) and re-read at **0.1×** on every subsequent call — both are
+[Anthropic's published multipliers](https://platform.claude.com/docs/en/docs/build-with-claude/prompt-caching):
 
 ```
 cost(X tokens, N turns) = X × (2 + 0.1 × (N − 1))

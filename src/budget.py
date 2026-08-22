@@ -19,7 +19,8 @@ The evidence that this is worth gating on
 -----------------------------------------
 Not merely cost. Anthropic's Tool Search Tool cut tool definitions from ~77K to
 ~8.7K always-loaded tokens and MCP accuracy rose from 49% to 74% on Opus 4, and
-79.5% to 88.1% on Opus 4.5. Du et al. (arXiv:2510.05381) find 13.9-85% degradation
+79.5% to 88.1% on Opus 4.5 (anthropic.com/engineering/advanced-tool-use).
+Du et al. (arXiv:2510.05381) find 13.9-85% degradation
 from context length *even when irrelevant tokens are masked out*, so length itself
 is a cost, not just misdirected attention. Shi et al. (ICML 2023) show irrelevant
 context harms separately from length.
@@ -72,7 +73,12 @@ DEFAULT_BUDGET = {
 #
 # Claude Code writes the standing prefix at a 1-hour TTL, which bills at 2x base
 # input price, and then re-reads it at 0.1x on every subsequent call in that
-# session. So N turns cost:
+# session. Both multipliers are Anthropic's published figures, verified against
+# https://platform.claude.com/docs/en/docs/build-with-claude/prompt-caching :
+#   5-minute cache write  1.25x base input
+#   1-hour cache write    2.00x base input
+#   cache read            0.10x base input
+# So N turns cost:
 #
 #       X * (2 + 0.1 * (N - 1))
 #
