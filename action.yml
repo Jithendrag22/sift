@@ -71,7 +71,14 @@ runs:
         BASE: ${{ inputs.base }}
         TARGET: ${{ inputs.path }}
       run: |
-        set -uo pipefail   # deliberately not -e: we need the CLI's exit code
+        # GitHub expands `shell: bash` to `bash --noprofile --norc -e -o pipefail`,
+        # and that -e is injected on the shell line where a `set` inside the script
+        # cannot pre-empt it. Without an explicit `set +e` the step dies the instant
+        # `sift check` correctly exits 1 — taking the PR comment and the gate with
+        # it, and failing the build even when fail-on is `never`. Found by running
+        # this on a real runner; it passed every local test.
+        set +e
+        set -u -o pipefail
 
         args=("$TARGET")
         [ -n "$BASE" ] && args+=(--base "$BASE")
@@ -106,12 +113,19 @@ runs:
         echo "SIFT_RC=$verdict_rc" >> "$GITHUB_ENV"
 
     - name: Comment on the pull request
-      if: inputs.comment == 'true' && github.event_name == 'pull_request'
+      # always(): the whole point is to comment when the budget is breached.
+      if: always() && inputs.comment == 'true' && github.event_name == 'pull_request'
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
         PR: ${{ github.event.pull_request.number }}
       run: |
+        # The measure step may have died before writing anything; do not post an
+        # empty comment on top of a real failure.
+        if [ ! -s "$RUNNER_TEMP/sift.md" ]; then
+          echo "No report to post — the measure step produced nothing."
+          exit 0
+        fi
         # --edit-last keeps one rolling comment instead of a new one per push.
         # It fails when there is no previous comment, hence the fallback.
         gh pr comment "$PR" --body-file "$RUNNER_TEMP/sift.md" --edit-last \
@@ -119,10 +133,18 @@ runs:
           || echo "::warning title=Sift could not comment::Check that the workflow grants pull-requests: write."
 
     - name: Apply the gate
+      # This step, and only this step, decides whether the build fails.
+      if: always()
       shell: bash
       run: |
+        status="${SIFT_STATUS:-unknown}"
+        if [ "$status" = "unknown" ]; then
+          echo "::error title=Sift did not produce a verdict::The measure step failed before reaching a status."
+          exit 1
+        fi
+        echo "Context budget status: $status"
         case "${{ inputs.fail-on }}" in
           never) echo "fail-on: never — reporting only." ;;
-          warn)  [ "$SIFT_STATUS" = "pass" ] || { echo "::error::Context budget status: $SIFT_STATUS"; exit 1; } ;;
-          *)     [ "$SIFT_STATUS" != "fail" ] || { echo "::error::Context budget exceeded."; exit 1; } ;;
+          warn)  [ "$status" = "pass" ] || { echo "::error::Context budget status: $status"; exit 1; } ;;
+          *)     [ "$status" != "fail" ] || { echo "::error::Context budget exceeded."; exit 1; } ;;
         esac
