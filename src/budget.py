@@ -353,7 +353,7 @@ def render_comment(v: dict, budget: dict | None = None) -> str:
              "fixed, so it is directional and free of task-variance confounders. "
              "Evidence that always-on context costs accuracy is strong above ~10k tokens "
              "([Tool Search: 77K→8.7K tokens raised MCP accuracy 49%→74%]"
-             "(https://www.anthropic.com/engineering), "
+             "(https://www.anthropic.com/engineering/advanced-tool-use), "
              "[arXiv:2510.05381](https://arxiv.org/abs/2510.05381)) and is an extrapolation "
              "below that. Sift measures the quantity; the harm at small sizes is inferred.</sub>")
     return head
