@@ -4,3 +4,5 @@ reports/*.html
 data/corpus.jsonl
 data/install_cost.json
 .DS_Store
+data/corpus_report.txt
+reports/

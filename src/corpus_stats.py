@@ -51,8 +51,14 @@ try:
 except ImportError:
     yaml = None
 
-VAULT = "/Users/jithendrabethi/Desktop/my_projects/claude code repos"
-OUT_DIR = "/Users/jithendrabethi/Desktop/my_projects/Temporary/sift/data"
+# Corpus root and output directory are arguments, not constants. Point this at any
+# directory tree containing SKILL.md files:
+#     python3 src/corpus_stats.py /path/to/skills [output-dir]
+# Defaults assume you are running from the repository root.
+VAULT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.getcwd()
+OUT_DIR = os.path.abspath(sys.argv[2]) if len(sys.argv) > 2 else os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+os.makedirs(OUT_DIR, exist_ok=True)
 OUT_JSONL = os.path.join(OUT_DIR, "corpus.jsonl")
 OUT_REPORT = os.path.join(OUT_DIR, "corpus_report.txt")
 

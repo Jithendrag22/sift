@@ -7,7 +7,10 @@ import json,os,sys,re
 sys.path.insert(0,os.path.dirname(__file__))
 from audit import split_frontmatter, estimate_tokens, check_description
 
-VAULT='/Users/jithendrabethi/Desktop/my_projects/claude code repos'
+# Corpus root is an argument:  python3 src/install_cost.py /path/to/skill-repos
+VAULT = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else os.getcwd()
+OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+os.makedirs(OUT, exist_ok=True)
 rows={}
 for dirpath,dirs,files in os.walk(VAULT):
     if '.git' in dirpath.split(os.sep): continue
@@ -28,7 +31,7 @@ for dirpath,dirs,files in os.walk(VAULT):
         iss=check_description(d)
         if any('no explicit trigger' in i for i in iss): r['notrig']+=1
         if any('budget' in i for i in iss): r['bloated']+=1
-json.dump(rows,open('data/install_cost.json','w'),indent=1)
+json.dump(rows, open(os.path.join(OUT, 'install_cost.json'), 'w'), indent=1)
 tot=sum(r['always'] for r in rows.values()); n=sum(r['n'] for r in rows.values())
 print(f"{'repo':<42}{'skills':>7}{'always-on':>11}{'on-demand':>11}{'no trig':>9}{'bloated':>9}")
 for repo,r in sorted(rows.items(),key=lambda x:-x[1]['always'])[:20]:
